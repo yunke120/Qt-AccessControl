@@ -1,8 +1,6 @@
 # Qt-AccessControl
 Qt 人脸识别门禁管理系统
 
-https://github.com/yunke120/Qt-AccessControl#qt-accesscontrol
-
 ## 目录
 
 1. [仓库介绍 Introduction](https://github.com/yunke120/Qt-AccessControl#introduction)
