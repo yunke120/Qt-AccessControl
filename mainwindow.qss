@@ -1,0 +1,355 @@
+
+QMainWindow{
+	background-color: #AEB8C3;
+    font-size:20px;
+}
+
+QMainWindow::separator {
+    background: yellow;
+    width: 10px; /* when vertical */
+    height: 10px; /* when horizontal */
+}
+
+QMainWindow::separator:hover {
+    background: red;
+}
+
+QMainWindow QLabel
+{
+	qproperty-alignment: AlignCenter;
+}
+
+#frameStatus QLabel
+{
+	qproperty-alignment: AlignLeft;
+}
+
+/************ QPushButton ************/
+
+QPushButton {
+    border: 2px solid #8f8f91;
+    border-radius: 6px;
+	background-color: #E1E7EB;
+	color: #4E0E2E;
+    min-width: 30px;
+    min-height: 30px;
+	
+}
+
+QPushButton:pressed {
+	border-style: inset;
+    background-color:rgb(255,255,255);
+}
+
+QPushButton:flat {
+    border: none; /* no border for a flat push button */
+}
+
+QPushButton:default {
+    border-color: navy; /* make the default button prominent */
+}
+
+QPushButton:hover
+{
+	border:2px solid rgba(31,110,212,1) ;
+}
+
+/************ QSlider ************/
+
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}
+
+/************ QComboBox ************/
+
+QComboBox {
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 1px 18px 1px 3px;
+    min-width: 1em;
+}
+
+QComboBox:editable {
+    background: white;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+}
+
+/* QComboBox gets the "on" state when the popup is open */
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/resources/imgs/down-arrow.png);
+	width: 14px;
+    height: 14px;
+}
+
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+    top: 1px;
+    left: 1px;
+}
+
+
+/************ QLineEdit ************/
+
+QLineEdit {
+    border: 2px solid gray;
+    border-radius: 5px;
+    padding: 0 8px;
+    background: white;
+    selection-background-color: darkgray;
+}
+
+/************ QSplitter ************/
+
+QSplitter::handle:horizontal {
+    width: 2px;
+}
+
+QSplitter::handle:vertical {
+    height: 2px;
+}
+
+/************ QTextEdit ************/
+
+QTextEdit{
+    border: 2px solid white;
+    border-radius: 5px; 
+}
+
+/************ QGroupBox ************/
+
+QGroupBox{
+    border: 2px solid white;
+    border-radius: 5px; 
+	padding-top: 10px;
+}
+
+QGroupBox:title{
+        subcontrol-origin: margin;
+        subcontrol-position: top left;
+        padding: 0 3px;
+        color:black;
+}
+
+/************ QTabWidget ************/
+
+QTabWidget::pane { /* The tab widget frame */
+    border-top: 2px solid #FFFFFF;
+}
+
+QTabWidget::tab-bar {
+    left: 5px; /* move to the right by 5px */
+}
+
+/* Style the tab using the tab sub-control. Note that
+    it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+    border: 2px solid #C4C4C3;
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 18ex;
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
+                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+}
+
+QTabBar::tab:selected {
+    border-color: #9B9B9B;
+    border-bottom-color: #C2C7CB; /* same as pane color */
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
+
+/* make use of negative margins for overlapping tabs */
+QTabBar::tab:selected {
+    /* expand/overlap to the left and right by 4px */
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+QTabBar::tab:first:selected {
+    margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
+}
+
+QTabBar::tab:last:selected {
+    margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
+}
+
+QTabBar::tab:only-one {
+    margin: 0; /* if there is only one tab, we don't want overlapping margins */
+}
+
+QTabBar::tab:disabled {
+        width: 0;
+        color: transparent;
+}
+
+/************ QMessageBox ************/
+
+QMessageBox {
+    border: 2px solid white;
+    border-radius: 5px; 
+	padding-top: 10px;
+	background-color: white; /* QMessageBox背景颜色 */
+}
+
+QMessageBox QLabel#qt_msgbox_label { /* textLabel */
+	color: black;
+	background-color: transparent;
+	min-width: 200px; /* textLabel设置最小宽度可以相应的改变QMessageBox的最小宽度 */
+	min-height: 40px; /* textLabel和iconLabel高度保持一致 */
+}
+
+QMessageBox QLabel#qt_msgboxex_icon_label { /* iconLabel */
+	width: 40px;
+	height: 40px; /* textLabel和iconLabel高度保持一致 */
+}
+
+QMessageBox QPushButton { /* QMessageBox中的QPushButton样式 */
+	min-width: 70px;
+}
+
+QMessageBox QDialogButtonBox#qt_msgbox_buttonbox { /* buttonBox */
+	button-layout: 0; /* 设置QPushButton布局好像没啥作用 */
+}
+
+
+
+#gBMotorState > GCLed
+{
+	min-height: 50px;
+    min-width: 50px;
+}
+
+#labelVideo
+{
+    background-color: transparent;
+    border: 4px solid gray
+}
+
+#tELog
+{
+    background-color: #AEB8C3;
+    color: black;
+    border: 2px solid white;
+    border-radius: 4px;
+}
+
+#frameStatus
+{
+    border: 2px solid white;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+#frameStatus > QLabel
+{
+    font-size: 17px;
+}
+
+#btnPortConnect,#btnCameraConnect
+{
+    height: 12px;
+    width: 12ex;
+}
+
+#btnSysEmerStop,#btnRunEmerStop,#btnRunEmerStop2,#btnSysEmerStop2,#btnSysEmerStop3,#btnSysEmerStop4{
+    height: 50px;
+    background-color: #fae3d9;
+}
+
+#btnAutoRun,#btnAudoCross{
+    height: 50px;
+}
+
+
+#lERTSP{
+    width: 75ex;
+}
+
+#btnPtzUp
+{
+    image:url(:/resources/imgs/ptzup.png);
+}
+
+#btnPtzDown
+{
+    image:url(:/resources/imgs/ptzdown.png);
+}
+
+#btnPtzLeft
+{
+    image:url(:/resources/imgs/ptzleft.png);
+}
+
+#btnPtzRight
+{
+    image:url(:/resources/imgs/ptzright.png);
+}
+
+#btnPtzZoomIn,#btnPtzZoomOut
+{
+    font-size: 40px;
+}
+
+#btnVelStop, #btnDisStop
+{
+    height: 50px;
+}
+
+#btnAutoSeleFile
+{
+    min-width: 20ex;
+}
+
+
+
+
+

@@ -42,6 +42,11 @@ LIBS += -L$$PWD/opencv/lib -lopencv_core249     \
 
 LIBS += -L$$PWD/arcface/lib -llibarcsoft_face_engine
 
+RESOURCES += \
+    resource.qrc
+
+RC_ICONS = logo.ico
+
 
 
 

@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
+    this->setWindowTitle(QStringLiteral("人脸识别门禁系统"));
+
     if (systemInit("kf4Er8xXdzWCD97fS44ghb6Lg9MMDtzPbqftjacyuM2", "BHwSM2pzFzcHUE8ZT9EfuSJENVLcHgHXGq3q6bEEmnkb"))
     {
         qDebug() << "system init failed!";
@@ -18,8 +20,9 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
         return;
     }
 
-    //    qErrnoWarning("sqlInit success.");
     tablewidgetInit();
+
+    qApp->setStyleSheet("file:///:/style.qss");
 
     this->loadUserInfo(db, "userData");
     for (int i = 0; i < username_list.size(); i++)
@@ -395,16 +398,17 @@ void MainWindow::tablewidgetInit()
     ui->tableWidget->horizontalHeader()->setMinimumHeight(40);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
+    ui->tableWidget->verticalHeader()->setDefaultSectionSize(200);
     for (int i = 0; i < headerHeng.size(); i++)
     {
-        ui->tableWidget->verticalHeader()->setDefaultSectionSize(200);
-        if (0 == i) /* uv_number只可能为0和uv,而这两列都是有必要的 */
-        {           /* 将uv显示的那一列宽度设置为跟随内容变化，这样在分辨率低的显示屏上一样可以显示完全 */
-            ui->tableWidget->setColumnWidth(i, 40);
+
+        if (0 == i)
+        {
+            ui->tableWidget->setColumnWidth(i, 50);
             continue;
         }
-        //        ui->tableWidget->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
-        ui->tableWidget->setColumnWidth(i, 200);
+        ui->tableWidget->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+//        ui->tableWidget->setColumnWidth(i, 200);
     }
 
     user_id = 0;
