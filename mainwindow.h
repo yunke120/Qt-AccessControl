@@ -2,8 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QButtonGroup>
+#include <QSerialPort>
+#include <QSerialPortInfo>
+
 #include "submain.h"
 #include "face_sql.h"
+
+#define IMAGE_HEIGHT   100
+
+
 using namespace cv;
 
 namespace Ui {
@@ -31,11 +39,15 @@ public:
     void tablewidgetInit(void);
     void insertOneRowInTable(int id, QString username, QImage image);
 
+    void serialportInit(void);
+
 private slots:
 
     void slot_VideoTimer(void);
     void slot_VideoRegisterTimer(void);
     void slot_DeleteRow(int,int);
+    void slotSerialReadyRead(void);
+
     void on_btnOpenVideo_clicked();
 
     void on_btnRegiVideo_clicked();
@@ -48,6 +60,8 @@ private slots:
 
     void on_btnFind_clicked();
 
+
+    void on_btnOpenSerial_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -82,6 +96,9 @@ private:
 
 
     QStringList files_path;
+
+
+    QSerialPort *pSerial;
 };
 
 #endif // MAINWINDOW_H

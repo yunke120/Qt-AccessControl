@@ -7,7 +7,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
     ui->setupUi(this);
 
     this->setWindowTitle(QStringLiteral("人脸识别门禁系统"));
-
+    ui->doubleSpinBox->setRange(0.00, 1.00);
+    ui->doubleSpinBox->setValue(0.90);
     if (systemInit("kf4Er8xXdzWCD97fS44ghb6Lg9MMDtzPbqftjacyuM2", "BHwSM2pzFzcHUE8ZT9EfuSJENVLcHgHXGq3q6bEEmnkb"))
     {
         qDebug() << "system init failed!";
@@ -22,7 +23,30 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
 
     tablewidgetInit();
 
+    serialportInit();
+
+    ui->scrollArea->initialHandlerSize = []() -> QSize
+    {
+        return {15, 30};
+    };
+    ui->scrollArea->setOpenEasingCurve(QEasingCurve::Type::OutElastic);
+    ui->scrollArea->setCloseEasingCurve(QEasingCurve::Type::InElastic);
+    ui->scrollArea->init();
+
+    QButtonGroup *pbtnGroup = new QButtonGroup(this);
+    pbtnGroup->addButton(ui->btnSliderReco, 0);
+    pbtnGroup->addButton(ui->btnSliderRegi, 1);
+    pbtnGroup->addButton(ui->btnSliderManage, 2);
+    pbtnGroup->addButton(ui->btnSliderSet, 3);
+    connect(pbtnGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
+            [=](int id)
+            {
+                ui->stackedWidget->setCurrentIndex(id);
+            });
+
     qApp->setStyleSheet("file:///:/style.qss");
+
+    ui->btnSliderReco->setStyleSheet("QPushButton{image:url(:/imgs/reco.png);}");
 
     this->loadUserInfo(db, "userData");
     for (int i = 0; i < username_list.size(); i++)
@@ -398,7 +422,7 @@ void MainWindow::tablewidgetInit()
     ui->tableWidget->horizontalHeader()->setMinimumHeight(40);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-    ui->tableWidget->verticalHeader()->setDefaultSectionSize(200);
+    ui->tableWidget->verticalHeader()->setDefaultSectionSize(IMAGE_HEIGHT);
     for (int i = 0; i < headerHeng.size(); i++)
     {
 
@@ -408,7 +432,7 @@ void MainWindow::tablewidgetInit()
             continue;
         }
         ui->tableWidget->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
-//        ui->tableWidget->setColumnWidth(i, 200);
+        //        ui->tableWidget->setColumnWidth(i, 200);
     }
 
     user_id = 0;
@@ -429,7 +453,8 @@ void MainWindow::insertOneRowInTable(int id, QString username, QImage image)
     ui->tableWidget->setItem(line, 1, item1);
 
     QLabel *label = new QLabel();
-    label->setPixmap(QPixmap::fromImage(image.scaled(200, 200)));
+    //                                   int height = ui->tableWidget.
+    label->setPixmap(QPixmap::fromImage(image.scaled(IMAGE_HEIGHT, IMAGE_HEIGHT)));
     label->setAlignment(Qt::AlignHCenter);
     ui->tableWidget->setCellWidget(line, 2, label);
 
@@ -467,6 +492,23 @@ void MainWindow::insertOneRowInTable(int id, QString username, QImage image)
     line++;
 }
 
+void MainWindow::serialportInit()
+{
+    ui->cbBaudrate->setCurrentIndex(7);
+    pSerial = new QSerialPort(this);
+    pSerial->setDataBits(QSerialPort::Data8);
+    pSerial->setStopBits(QSerialPort::OneStop);
+    pSerial->setParity(QSerialPort::NoParity);
+    pSerial->setFlowControl(QSerialPort::NoFlowControl);
+    connect(pSerial, &QSerialPort::readyRead, this, &MainWindow::slotSerialReadyRead);
+
+    ui->cbPort->clear();
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) /* 初始化串口列表 */
+    {
+        ui->cbPort->addItem(info.portName());
+    }
+}
+
 void MainWindow::slot_VideoTimer()
 {
     if (!pCap->isOpened())
@@ -476,8 +518,6 @@ void MainWindow::slot_VideoTimer()
     }
 
     cv::Mat image;
-    //    cv::Mat ret_image;
-    //    cv::Mat grayimage;
     if (!pCap->read(image))
     {
         qDebug() << " read image is empty";
@@ -485,9 +525,6 @@ void MainWindow::slot_VideoTimer()
     }
 
 #if 1
-
-    //    cv::cvtColor(image, grayimage, CV_BGR2GRAY);
-    //    cv::cvtColor(image, ret_image, CV_BGR2RGB);
 
     IplImage imgTmp = image;
     IplImage *img1 = cvCloneImage(&imgTmp); /* 深拷贝 */
@@ -537,7 +574,7 @@ void MainWindow::slot_VideoTimer()
             SingleDetectedFaces.faceOrient = detectedFaces.faceOrient[0];
 
             res = ASFFaceFeatureExtractEx(videoHandle, &offscreen, &SingleDetectedFaces, &feature);
-
+            double conf = ui->doubleSpinBox->value();
             if (res == MOK)
             {
                 /* 第一次提取特征需进行拷贝，因为使用同一个引擎，第二次拷贝会覆盖第一次提取的结果 */
@@ -547,16 +584,19 @@ void MainWindow::slot_VideoTimer()
                 memset(copyfeature.feature, 0, feature.featureSize);
                 memcpy(copyfeature.feature, feature.feature, feature.featureSize);
                 qDebug() << "------------------";
-                qDebug() << __LINE__ << copyfeature.featureSize;
                 MFloat confidenceLevel;
                 for (int i = 0; i < feature_list.size(); i++)
                 {
                     ASFFaceFeatureCompare(videoHandle, &copyfeature, &feature_list[i], &confidenceLevel);
-                    qDebug() << __LINE__ << feature_list.at(i).featureSize << confidenceLevel;
+                    qDebug() << __LINE__ << confidenceLevel;
 
-                    if (confidenceLevel > 0.90)
+                    if (confidenceLevel > conf)
                     {
                         flag = true;
+                        if (pSerial->isOpen())
+                        {
+                            pSerial->write("open");
+                        }
                     }
                     else
                     {
@@ -565,21 +605,11 @@ void MainWindow::slot_VideoTimer()
                 }
             }
         }
-        else
-        {
-            qDebug("ASFDetectFacesEx failed: %d\n", res);
-        }
-
-        //        cvReleaseImage(&img1);
-    }
-    else
-    {
-        qDebug() << __LINE__ << "img1 error";
     }
 #endif
 
     QImage q_image = cvMat2QImage(image);
-    ui->labelVideo->setPixmap(QPixmap::fromImage(q_image));
+    ui->labelVideo->setPixmap(QPixmap::fromImage(q_image.scaled(ui->labelVideo->width(), ui->labelVideo->height(), Qt::KeepAspectRatio)));
 }
 
 void MainWindow::slot_VideoRegisterTimer()
@@ -684,12 +714,18 @@ void MainWindow::slot_VideoRegisterTimer()
         }
 
         QImage q_image((const uchar *)ret_image.data, ret_image.cols, ret_image.rows, QImage::Format_RGB888); /* 截图彩色 */
-        ui->labelVideoRegister->setPixmap(QPixmap::fromImage(q_image));
+        ui->labelVideoRegister->setPixmap(QPixmap::fromImage(q_image.scaled(ui->labelVideo->width(), ui->labelVideo->height(), Qt::KeepAspectRatioByExpanding)));
     }
 }
 
 void MainWindow::slot_DeleteRow(int, int)
 {
+}
+
+void MainWindow::slotSerialReadyRead()
+{
+    QByteArray array = pSerial->readAll();
+    qDebug() << QString(array);
 }
 
 void MainWindow::on_btnOpenVideo_clicked()
@@ -746,7 +782,7 @@ void MainWindow::on_btnRegiVideo_clicked()
     cascadeClassifier = (CvHaarClassifierCascade *)cvLoad("./haarcascade_frontalface_alt2.xml");
 
     pVideoRegisterTimer = new QTimer(this);
-    pVideoRegisterTimer->setInterval(100);
+    pVideoRegisterTimer->setInterval(150);
     connect(pVideoRegisterTimer, &QTimer::timeout, this, &MainWindow::slot_VideoRegisterTimer);
     pVideoRegisterTimer->start();
 
@@ -875,5 +911,37 @@ void MainWindow::on_btnFind_clicked()
     {
         QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("未查找到该人员信息"));
         return;
+    }
+}
+
+void MainWindow::on_btnOpenSerial_clicked()
+{
+    if (ui->btnOpenSerial->text() == QStringLiteral("打开串口"))
+    {
+
+        if (ui->cbPort->currentText() == nullptr)
+        {
+            ui->cbPort->clear();
+            foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+            {
+                ui->cbPort->addItem(info.portName());
+            }
+            return;
+        }
+
+        pSerial->setPortName(ui->cbPort->currentText());
+        if (!pSerial->open(QIODevice::ReadWrite))
+        {
+            return;
+        }
+        ui->btnOpenSerial->setText(QStringLiteral("关闭串口"));
+    }
+
+    else
+    {
+        if (!pSerial->isOpen())
+            return;
+        pSerial->close();
+        ui->btnOpenSerial->setText(QStringLiteral("打开串口"));
     }
 }

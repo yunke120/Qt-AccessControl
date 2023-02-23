@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>style.qss</file>
+        <file>imgs/manage.png</file>
+        <file>imgs/reco.png</file>
+        <file>imgs/regi.png</file>
+        <file>imgs/set.png</file>
     </qresource>
 </RCC>

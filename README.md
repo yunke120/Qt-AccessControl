@@ -14,6 +14,8 @@ Qt 人脸识别门禁管理系统
 
 ​		通过虹软SDK制作的人脸识别门禁系统，支持人脸的检测、识别、注册、删除、查找等，通过`sqlite`数据库进行存储。
 
+​		增加通信接口，当人脸识别成功时，通过串口发送识别成功指令。
+
 ## Environment
 
 - QT >= Qt 5
@@ -30,7 +32,7 @@ $git clone https://github.com/yunke120/Qt-AccessControl.git
 
 ## DemoVideo
 
-
+![image-20230223192936951](figures/image-20230223192936951.png)
 
 ## 许可证
 
@@ -41,4 +43,8 @@ $git clone https://github.com/yunke120/Qt-AccessControl.git
 - [虹软开发者中心](https://ai.arcsoft.com.cn/ucenter/resource/build/index.html)
 
 - [MySQL入门教程](https://www.cnblogs.com/mr-wid/archive/2013/05/09/3068229.html)
+
+- [QSidePanel](https://github.com/inobelar/QSidePanel)
+
+  
 

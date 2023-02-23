@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +22,8 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui
+
+include($${PWD}/QSidePanel/q_side_panel.pri)
 
 INCLUDEPATH += $$PWD/opencv/inc/
 INCLUDEPATH += $$PWD/opencv/inc/opencv
