@@ -39,24 +39,6 @@
 #define SafeDelete(p) { if ((p)) delete (p); (p) = NULL; }
 
 
-//#define TEST_UI_TEST_T
-//#define IMAGE_TEST_T
-//#define VIDEO_TEST_T
-//#define VIDEO_2_LABEL_TEST_T
-//#define ARCFACE_TEST_T
-//#define FACE_MATCH_TEST_T
-//#define VIDEO_MATCH_TEST_T
-#define REGISTER_FACE_TEST_T
-
-
-
-typedef struct FACE_DATA{
-    int t_id;
-    QString t_username;
-    ASF_FaceFeature t_feature;
-    cv::Mat t_image;
-} FACE_DATA_TypeDef;
-
 typedef struct SQL_DATA{
     int t_id;
     QString t_username;

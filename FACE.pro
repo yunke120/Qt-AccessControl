@@ -1,4 +1,4 @@
-QT       += core gui sql serialport
+QT       += core gui sql serialport texttospeech
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

@@ -5,5 +5,7 @@
         <file>imgs/reco.png</file>
         <file>imgs/regi.png</file>
         <file>imgs/set.png</file>
+        <file>imgs/chengdu.png</file>
+        <file>imgs/haut.png</file>
     </qresource>
 </RCC>

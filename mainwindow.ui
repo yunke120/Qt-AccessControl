@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>423</height>
+    <width>1113</width>
+    <height>748</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
           <x>0</x>
           <y>0</y>
           <width>104</width>
-          <height>397</height>
+          <height>722</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -35,6 +35,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="2,1,1,1,1,5">
            <item>
             <widget class="QLabel" name="labellogo">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -114,7 +117,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QGridLayout" name="gridLayout_5">

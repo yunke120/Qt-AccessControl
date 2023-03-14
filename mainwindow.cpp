@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
 
     serialportInit();
 
+    //speechInit();
+
     ui->scrollArea->initialHandlerSize = []() -> QSize
     {
         return {15, 30};
@@ -46,9 +48,10 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
 
     qApp->setStyleSheet("file:///:/style.qss");
 
-    ui->btnSliderReco->setStyleSheet("QPushButton{image:url(:/imgs/reco.png);}");
+    //    ui->btnSliderReco->setStyleSheet("QPushButton{image:url(:/imgs/reco.png);}");
+    ui->labellogo->setStyleSheet("QLabel{image:url(:/imgs/haut.png);}");
 
-    this->loadUserInfo(db, "userData");
+    this->loadUserInfo(db, "userData"); /* 初始加载界面 */
     for (int i = 0; i < username_list.size(); i++)
     {
         QImage image = cvMat2QImage(image_list.at(i));
@@ -138,7 +141,7 @@ bool MainWindow::loadUserInfo(QSqlDatabase _db, QString table)
     image_list.clear();
     username_list.clear();
 
-    int user_len = pSqllite->getAllUsername(_db, table, username_list);
+    int user_len = pSqllite->getAllUsername(_db, table, username_list); /* 获取所有用户数量 */
 
     //    qDebug() << username_list;
     for (int i = 0; i < user_len; i++)
@@ -496,6 +499,7 @@ void MainWindow::serialportInit()
 {
     ui->cbBaudrate->setCurrentIndex(7);
     pSerial = new QSerialPort(this);
+    pSerial->setBaudRate(115200);
     pSerial->setDataBits(QSerialPort::Data8);
     pSerial->setStopBits(QSerialPort::OneStop);
     pSerial->setParity(QSerialPort::NoParity);
@@ -507,6 +511,18 @@ void MainWindow::serialportInit()
     {
         ui->cbPort->addItem(info.portName());
     }
+}
+
+void MainWindow::speechInit()
+{
+    pSpeech = new QTextToSpeech(this);
+    //                                   pSpeech->setLocale(QLocale::Chinese);
+    //                                   pSpeech->setVolume(0.8);
+    //                                   pSpeech->setPitch(1.0);
+    //                                   pSpeech->setRate(0.0);
+
+    QVector<QLocale> locale_list = pSpeech->availableLocales();
+    qDebug() << locale_list;
 }
 
 void MainWindow::slot_VideoTimer()
@@ -533,7 +549,7 @@ void MainWindow::slot_VideoTimer()
     ASF_SingleFaceInfo SingleDetectedFaces = {0}; /* 单人脸信息 */
     ASF_FaceFeature feature = {0};                /* 人脸特征 */
     ASF_FaceFeature copyfeature = {0};            /* 人脸特征 */
-    static int flag = false;
+
     /* 4字节对齐 */
     IplImage *cutImg1 = cvCreateImage(cvSize(img1->width - img1->width % 4, img1->height), IPL_DEPTH_8U, img1->nChannels);
     CutIplImage(img1, cutImg1, 0, 0);
@@ -555,7 +571,7 @@ void MainWindow::slot_VideoTimer()
             {
                 cv::Point t1(detectedFaces.faceRect[i].left, detectedFaces.faceRect[i].top);
                 cv::Point t2(detectedFaces.faceRect[i].right, detectedFaces.faceRect[i].bottom);
-                if (flag)
+                if (m_Recog_Flag)
                 {
                     CvScalar green[] = {{{0, 255, 0}}};
                     cv::rectangle(image, t1, t2, green[0], 2);
@@ -588,19 +604,23 @@ void MainWindow::slot_VideoTimer()
                 for (int i = 0; i < feature_list.size(); i++)
                 {
                     ASFFaceFeatureCompare(videoHandle, &copyfeature, &feature_list[i], &confidenceLevel);
-                    qDebug() << __LINE__ << confidenceLevel;
+                    //                    qDebug() << __LINE__ << confidenceLevel;
 
                     if (confidenceLevel > conf)
                     {
-                        flag = true;
-                        if (pSerial->isOpen())
+
+                        if (pSerial->isOpen() && temp_flag == false)
                         {
-                            pSerial->write("open");
+                            unsigned char buf[3] = {0xAA, 0x0D, 0x0A};
+                            pSerial->write(reinterpret_cast<char *>(buf), 3);
+                            qDebug() << "dsf";
                         }
+                        m_Recog_Flag = true;
+                        temp_flag = true;
                     }
                     else
                     {
-                        flag = false;
+                        m_Recog_Flag = false;
                     }
                 }
             }
@@ -718,18 +738,29 @@ void MainWindow::slot_VideoRegisterTimer()
     }
 }
 
-void MainWindow::slot_DeleteRow(int, int)
-{
-}
-
 void MainWindow::slotSerialReadyRead()
 {
     QByteArray array = pSerial->readAll();
-    qDebug() << QString(array);
+    qDebug() << array.size();
+    for (int i = 0; i < array.size(); i++)
+    {
+        qDebug() << QString::number((unsigned char)array.at(i), 16);
+    }
+
+    if (static_cast<unsigned char>(array.at(0)) == 0xAA)
+    {
+        temp_flag = false;
+    }
 }
 
 void MainWindow::on_btnOpenVideo_clicked()
 {
+    if (!pSerial->isOpen())
+    {
+        QMessageBox::warning(this, QStringLiteral("警告"), QStringLiteral("请在设置界面打开通信串口"));
+        return;
+    }
+
     if (ui->btnOpenVideo->text() == QStringLiteral("打开视频"))
     {
         pCap = new VideoCapture;
@@ -856,7 +887,7 @@ void MainWindow::on_btnConfirmRegister_clicked()
         QByteArray imgByte = QByteArray::fromRawData((const char *)img.ptr(), data_size);
         sdt.t_imgdata = imgByte;
 
-        if (pSqllite->insert_data_into_table(db, "userData", &sdt))
+        if (pSqllite->insert_data_into_table(db, "userData", &sdt)) /* 保存人脸特征在数据库中 */
         {
             //                                   QString name = mImagePath.split('/').back();
             QString name = ui->lineEditName->text() + ".jpg";
@@ -935,6 +966,16 @@ void MainWindow::on_btnOpenSerial_clicked()
             return;
         }
         ui->btnOpenSerial->setText(QStringLiteral("关闭串口"));
+        QString test = QStringLiteral("hello");
+        if (pSpeech->state() == QTextToSpeech::Ready)
+        {
+            qDebug() << test;
+            pSpeech->say(test);
+        }
+        else
+        {
+            qDebug() << pSpeech->state();
+        }
     }
 
     else
@@ -943,5 +984,7 @@ void MainWindow::on_btnOpenSerial_clicked()
             return;
         pSerial->close();
         ui->btnOpenSerial->setText(QStringLiteral("打开串口"));
+        QString test = "串口已关闭";
+        pSpeech->say(test);
     }
 }
