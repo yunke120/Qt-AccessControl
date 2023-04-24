@@ -11,16 +11,22 @@ DESTDIR = $$PWD/bin
 TARGET = FACE
 
 SOURCES += \
+    configwidget.cpp \
     face_sql.cpp \
+    loginwidget.cpp \
     main.cpp \
     mainwindow.cpp \
 
 HEADERS += \
+    configwidget.h \
     face_sql.h \
+    loginwidget.h \
     mainwindow.h
     submain.h
 
 FORMS += \
+    configwidget.ui \
+    loginwidget.ui \
     mainwindow.ui
 
 include($${PWD}/QSidePanel/q_side_panel.pri)

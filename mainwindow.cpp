@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent),
     qApp->setStyleSheet("file:///:/style.qss");
 
     //    ui->btnSliderReco->setStyleSheet("QPushButton{image:url(:/imgs/reco.png);}");
-    ui->labellogo->setStyleSheet("QLabel{image:url(:/imgs/haut.png);}");
+    //ui->labellogo->setStyleSheet("QLabel{image:url(:/imgs/haut.png);}");
 
     this->loadUserInfo(db, "userData"); /* 初始加载界面 */
     for (int i = 0; i < username_list.size(); i++)
